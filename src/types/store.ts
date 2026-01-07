@@ -1,0 +1,69 @@
+import type { LoginUser } from "./loginUser";
+import type { Course, CoursePayload } from "./course";
+
+export interface AuthState {
+    accessToken: string | null;
+    loginUser: LoginUser | null;
+    loading: boolean;
+
+    signUp: (
+        email: string,
+        password: string,
+        firstName: string,
+        lastName: string,
+        role: string,
+        expertise: string,
+        bio: string,
+        dateOfBirth: string,
+        campus: string
+    ) => Promise<void>;
+    login: (email: string, password: string,) => Promise<void>;
+    sendOTP: (email: string,) => Promise<void>;
+    verifyOTP: (email: string, otp: string,) => Promise<void>; 
+    fetchMe: () => Promise<void>;
+    refresh: () => Promise<void>;
+    clearState: () => void;
+    logout: () => Promise<void>;
+}
+
+export interface AuthState {
+    accessToken: string | null;
+    loginUser: LoginUser | null;
+    loading: boolean;
+
+    signUp: (
+        email: string,
+        password: string,
+        firstName: string,
+        lastName: string,
+        role: string,
+        expertise: string,
+        bio: string,
+        dateOfBirth: string,
+        campus: string
+    ) => Promise<void>;
+    login: (email: string, password: string,) => Promise<void>;
+    sendOTP: (email: string,) => Promise<void>;
+    verifyOTP: (email: string, otp: string,) => Promise<void>; 
+    fetchMe: () => Promise<void>;
+    refresh: () => Promise<void>;
+    clearState: () => void;
+    logout: () => Promise<void>;
+}
+
+
+export interface CourseState {
+    courseList: Course[];
+    selectedCourse: Course | null; // Dùng khi xem chi tiết hoặc sửa
+    loading: boolean;
+
+    // Actions
+    fetchCourses: () => Promise<void>;
+    fetchCourseById: (id: number) => Promise<void>;
+    createCourse: (data: CoursePayload) => Promise<void>;
+    updateCourse: (id: number, data: CoursePayload) => Promise<void>;
+    deleteCourse: (id: number) => Promise<void>;
+    
+    // Helper để reset state nếu cần (ví dụ khi rời trang)
+    reset: () => void;
+}
