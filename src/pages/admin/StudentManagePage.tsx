@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 // Import Store & Types
 import { useStudentStore } from "@/stores/useStudentStore";
-import { type Student, type StudentPayload } from "@/types/student";
+import { type Student, type StudentPayload, type StudentSearchParams } from "@/types/student";
 import { UserStatus } from "@/types/userStatus";
 
 // Import UI Components
@@ -19,7 +19,6 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { StudentSearchParams } from "@/types/store";
 
 // Helper hook debounce
 function useDebounce<T>(value: T, delay: number): T {
