@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useCourseStore } from "@/stores/useCoureStore";
 import type { AxiosError } from "axios";
+import { STORAGE_FOLDERS } from "@/types/fileStorage";
 
 export default function CourseManagePage() {
     // 1. Store State
@@ -93,7 +94,7 @@ export default function CourseManagePage() {
             // BƯỚC QUAN TRỌNG: Nếu có file mới được chọn, tiến hành upload ngay bây giờ
             if (selectedFile) {
                 toast.loading("Đang tải ảnh lên hệ thống...");
-                finalImgUrl = await fileService.uploadFile(selectedFile, "fapanese/courses");
+                finalImgUrl = await fileService.uploadFile(selectedFile, STORAGE_FOLDERS.COURSE);
             }
 
             toast.dismiss()
@@ -109,7 +110,7 @@ export default function CourseManagePage() {
             resetStates(); // Hàm dọn dẹp state
         } catch (error) {
             const err = error as AxiosError<{ code: number, message: string }>;
-            toast.error(err.response?.data?.message || "Lỗi không xác định");
+            toast.error(err.response?.data?.message || "Đã xảy ra lỗi không xác định");
             setUploading(false);
             toast.dismiss();
         }

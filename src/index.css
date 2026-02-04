@@ -1,400 +1,299 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+import React, { useState, useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { userService } from '@/services/userService';
+import { fileService } from '@/services/fileService';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from 'sonner';
+import { Camera, Loader2, Save, Mail, MapPin, ShieldCheck, Eye, EyeOff, Lock, User } from 'lucide-react';
+import type { AxiosError } from 'axios';
 
-@custom-variant dark (&:is(.dark *));
-@config "../tailwind.config.ts";
+const CAMPUSES = ["Quy Nhơn", "Đà Nẵng", "Hà Nội", "TP. Hồ Chí Minh", "Cần Thơ"];
 
-@layer base {
-  :root {
-    /* Base colors */
-    --background: 0 0% 100%;
-    --foreground: 217.2 32.6% 17.5%; /* slate-800 */
+export default function ProfilePage() {
+    const { loginUser, fetchMe } = useAuthStore();
+    const [loading, setLoading] = useState(false);
+    const [changingPwd, setChangingPwd] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [showPwd, setShowPwd] = useState(false);
+    
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    /* Card system */
-    --card: 185 50% 99%; /* Tint xanh cực nhạt */
-    --card-foreground: 217.2 32.6% 17.5%;
+    const { register, handleSubmit, setValue, reset, watch: watchProfile } = useForm({
+        defaultValues: loginUser || {}
+    });
 
-    /* Popover system */
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 15% 15%;
+    const { register: regPwd, handleSubmit: handlePwdSubmit, reset: resetPwd, watch: watchPwd, formState: { errors: pwdErrors } } = useForm();
+    const newPassword = watchPwd("newPassword");
 
-    /* --- PRIMARY: #82DAE6 (Cyan) --- */
-    --primary: 187 68% 71%;
-    /* Vì màu nền Primary sáng (#82DAE6), chữ phải màu tối mới đọc được */
-    --primary-foreground: 217.2 32.6% 15%; 
-    /* Glow chuyển sang màu #A2EAF1 */
-    --primary-glow: 185 76% 79%;
+    useEffect(() => {
+        if (loginUser) reset(loginUser);
+    }, [loginUser, reset]);
 
-    /* --- SECONDARY: #A2EAF1 (Light Cyan) --- */
-    --secondary: 185 76% 79%;
-    --secondary-foreground: 187 100% 20%;
+    const onUpdateProfile = async (data: any) => {
+        try {
+            setLoading(true);
+            await userService.updateProfile(data);
+            await fetchMe();
+            toast.success("Thông tin đã được cập nhật!");
+        } catch (error) {
+            toast.error("Không thể cập nhật thông tin");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    /* Muted */
-    --muted: 187 30% 96%;
-    --muted-foreground: 240 15% 50%;
+    const onChangePassword = async (data: any) => {
+        try {
+            setChangingPwd(true);
+            await userService.changePassword({
+                currentPassword: data.currentPassword,
+                newPassword: data.newPassword
+            });
+            toast.success("Đổi mật khẩu thành công!");
+            resetPwd();
+        } catch (error) {
+            const err = error as AxiosError<{ message: string }>;
+            toast.error(err.response?.data?.message || "Mật khẩu hiện tại không đúng");
+        } finally {
+            setChangingPwd(false);
+        }
+    };
 
-    /* --- ACCENT: #EDD772 (Yellow) --- */
-    --accent: 49 78% 69%;
-    --accent-foreground: 45 100% 15%;
+    const handleUpdateAvatar = async () => {
+        if (!selectedFile) return;
+        try {
+            setUploading(true);
+            const newAvtUrl = await fileService.uploadFile(selectedFile, "avatars");
+            const defaultAvt = 'https://res.cloudinary.com/dsfpeioth/image/upload/v1767265678/student_avatar_xncvkx.png';
+            if (loginUser?.avtUrl && loginUser.avtUrl !== defaultAvt) {
+                await fileService.deleteFileByUrl(loginUser.avtUrl);
+            }
+            await userService.updateProfile({ avtUrl: newAvtUrl });
+            await fetchMe();
+            setSelectedFile(null);
+            setPreviewUrl(null);
+            toast.success("Ảnh đại diện đã thay đổi");
+        } catch (error) {
+            toast.error("Lỗi tải ảnh");
+        } finally {
+            setUploading(false);
+        }
+    };
 
-    /* Chat colors */
-    --chat-bubble-sent: 187 68% 71%; /* Primary */
-    --chat-bubble-sent-foreground: 217.2 32.6% 15%;
-    --chat-bubble-received: 185 30% 96%;
-    --chat-bubble-received-foreground: 240 15% 15%;
+    return (
+        <div className="min-h-screen bg-background py-10 px-4 transition-smooth">
+            <div className="max-w-5xl mx-auto">
+                <Tabs defaultValue="profile" className="w-full">
+                    {/* Header Tabs - Sử dụng hiệu ứng Glass & Primary color */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight text-foreground">Thiết lập tài khoản</h1>
+                            <p className="text-muted-foreground text-sm mt-1">Quản lý định danh và bảo mật cá nhân trên hệ thống Fapanese.</p>
+                        </div>
+                        <TabsList className="bg-muted p-1 rounded-2xl h-14 w-full md:w-80 shadow-soft">
+                            <TabsTrigger value="profile" className="rounded-xl h-full w-1/2 data-[state=active]:bg-white data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm font-bold">
+                                <User className="w-4 h-4 mr-2" /> Hồ sơ
+                            </TabsTrigger>
+                            <TabsTrigger value="security" className="rounded-xl h-full w-1/2 data-[state=active]:bg-white data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm font-bold">
+                                <Lock className="w-4 h-4 mr-2" /> Bảo mật
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
 
-    /* Status colors */
-    --online: 140 100% 50%;
-    --offline: 0 0% 70%;
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                        
+                        {/* SIDEBAR CARD - Sử dụng tone màu card từ CSS */}
+                        <Card className="lg:col-span-4 border border-border bg-[hsl(var(--card))] shadow-soft rounded-[2rem] p-8 flex flex-col items-center h-full">
+                            <CardContent className="p-0 flex flex-col items-center w-full h-full">
+                                <div className="relative mb-6">
+                                    <div className="p-1 rounded-full bg-gradient-primary shadow-glow">
+                                        <Avatar className="h-36 w-36 border-4 border-white">
+                                            <AvatarImage src={previewUrl || loginUser?.avtUrl || ""} className="object-cover" />
+                                            <AvatarFallback className="bg-muted text-primary font-bold text-3xl">
+                                                {loginUser?.firstName?.[0]}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </div>
+                                    <button 
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="absolute bottom-2 right-2 p-2.5 bg-primary text-primary-foreground rounded-full shadow-lg hover:scale-110 transition-bounce active:scale-95"
+                                    >
+                                        <Camera size={18} />
+                                    </button>
+                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) { setSelectedFile(file); setPreviewUrl(URL.createObjectURL(file)); }
+                                    }} />
+                                </div>
 
-    /* Warning - Dùng màu vàng Accent */
-    --warning: 49 78% 69%;
-    --warning-foreground: 45 100% 15%;
+                                <h2 className="text-xl font-bold text-foreground mb-1">
+                                    {loginUser?.firstName} {loginUser?.lastName}
+                                </h2>
+                                <div className="px-4 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-black uppercase tracking-[0.2em] mb-10 shadow-sm">
+                                    {loginUser?.role}
+                                </div>
 
-    /* Info - Dùng màu Primary */
-    --info: 187 68% 71%;
-    --info-foreground: 217.2 32.6% 15%;
+                                {selectedFile && (
+                                    <div className="flex gap-2 mb-8 animate-in fade-in zoom-in-95">
+                                        <Button size="sm" onClick={handleUpdateAvatar} disabled={uploading} className="rounded-xl bg-primary text-primary-foreground shadow-glow">
+                                            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Xác nhận"}
+                                        </Button>
+                                        <Button size="sm" variant="ghost" onClick={() => { setSelectedFile(null); setPreviewUrl(null); }} className="rounded-xl text-muted-foreground">Hủy</Button>
+                                    </div>
+                                )}
 
-    /* Destructive */
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+                                <div className="w-full space-y-6 border-t border-border pt-8 mt-auto">
+                                    <div className="flex items-center gap-4 group">
+                                        <div className="p-3 rounded-2xl bg-muted text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-smooth">
+                                            <Mail size={18} />
+                                        </div>
+                                        <div className="flex flex-col truncate">
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Email cá nhân</p>
+                                            <span className="text-sm text-foreground font-semibold truncate">{loginUser?.email}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4 group">
+                                        <div className="p-3 rounded-2xl bg-muted text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-smooth">
+                                            <MapPin size={18} />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Khu vực</p>
+                                            <span className="text-sm text-foreground font-semibold">{loginUser?.campus || "N/A"}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-    /* Border and input */
-    --border: 187 20% 88%;
-    --input: 187 20% 94%;
-    --ring: 187 68% 71%;
+                        {/* CONTENT SECTION */}
+                        <div className="lg:col-span-8 h-full">
+                            <TabsContent value="profile" className="m-0 h-full focus-visible:outline-none">
+                                <Card className="border border-border bg-white shadow-soft rounded-[2rem] p-8 md:p-12 h-full flex flex-col">
+                                    <div className="mb-10">
+                                        <h3 className="text-2xl font-bold text-foreground">Thông tin cá nhân</h3>
+                                        <p className="text-muted-foreground text-sm mt-1 font-medium">Cập nhật hồ sơ của bạn để đồng bộ trên toàn hệ thống.</p>
+                                    </div>
 
-    /* Design system values */
-    --radius: 1rem;
+                                    <form onSubmit={handleSubmit(onUpdateProfile)} className="space-y-6 flex-grow">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Họ</label>
+                                                <Input {...register("firstName")} className="h-12 rounded-xl bg-muted border-none focus-visible:ring-2 focus-visible:ring-primary/30 px-5 font-semibold" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Tên</label>
+                                                <Input {...register("lastName")} className="h-12 rounded-xl bg-muted border-none focus-visible:ring-2 focus-visible:ring-primary/30 px-5 font-semibold" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Ngày sinh</label>
+                                                <Input type="date" {...register("dateOfBirth")} className="h-12 rounded-xl bg-muted border-none focus-visible:ring-2 focus-visible:ring-primary/30 px-5 font-semibold" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Cơ sở (Campus)</label>
+                                                {loginUser?.role === 'STUDENT' ? (
+                                                    <Select onValueChange={(v) => setValue("campus", v)} defaultValue={loginUser?.campus}>
+                                                        <SelectTrigger className="h-12 rounded-xl bg-muted border-none focus:ring-2 focus:ring-primary/30 px-5 font-semibold">
+                                                            <SelectValue placeholder="Chọn cơ sở" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="rounded-xl border-border shadow-soft">
+                                                            {CAMPUSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                                        </SelectContent>
+                                                    </Select>
+                                                ) : (
+                                                    <Input {...register("expertise")} className="h-12 rounded-xl bg-muted border-none px-5 font-semibold" />
+                                                )}
+                                            </div>
+                                        </div>
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(
-      135deg,
-      hsl(187, 68%, 71%), /* #82DAE6 */
-      hsl(185, 76%, 79%)  /* #A2EAF1 */
+                                        {loginUser?.role === 'LECTURER' && (
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wider">Tiểu sử</label>
+                                                <Textarea {...register("bio")} rows={4} className="rounded-xl bg-muted border-none p-5 font-semibold focus-visible:ring-2 focus-visible:ring-primary/30" />
+                                            </div>
+                                        )}
+
+                                        <div className="pt-6 border-t border-border mt-auto flex justify-end">
+                                            <Button type="submit" disabled={loading} className="h-12 px-10 rounded-xl bg-primary text-primary-foreground shadow-glow hover:bg-primary/90 transition-bounce font-bold uppercase tracking-widest text-[10px]">
+                                                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save size={16} className="mr-2" />}
+                                                Lưu thay đổi
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </Card>
+                            </TabsContent>
+
+                            <TabsContent value="security" className="m-0 h-full focus-visible:outline-none">
+                                <Card className="border border-border bg-white shadow-soft rounded-[2rem] p-8 md:p-12 h-full flex flex-col">
+                                    <div className="mb-10">
+                                        <h3 className="text-2xl font-bold text-foreground">Bảo mật tài khoản</h3>
+                                        <p className="text-muted-foreground text-sm mt-1 font-medium">Thay đổi mật khẩu để bảo vệ tài khoản tốt hơn.</p>
+                                    </div>
+
+                                    <form onSubmit={handlePwdSubmit(onChangePassword)} className="space-y-5 max-w-md flex-grow">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-widest">Mật khẩu hiện tại</label>
+                                            <div className="relative">
+                                                <Input 
+                                                    type="password" 
+                                                    {...regPwd("currentPassword", { required: true })} 
+                                                    className="h-12 rounded-xl bg-muted border-none px-5 font-semibold pr-12"
+                                                />
+                                                <Lock className="absolute right-4 top-3.5 text-muted-foreground/50" size={18} />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-widest">Mật khẩu mới</label>
+                                            <div className="relative">
+                                                <Input 
+                                                    type={showPwd ? "text" : "password"} 
+                                                    {...regPwd("newPassword", { 
+                                                        required: "Bắt buộc",
+                                                        minLength: { value: 6, message: "Tối thiểu 6 ký tự" }
+                                                    })} 
+                                                    className="h-12 rounded-xl bg-muted border-none px-5 font-semibold pr-12"
+                                                />
+                                                <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-4 top-3.5 text-muted-foreground hover:text-primary transition-colors">
+                                                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                </button>
+                                            </div>
+                                            {pwdErrors.newPassword && <p className="text-[10px] text-destructive font-bold ml-1">{pwdErrors.newPassword.message as string}</p>}
+                                        </div>
+
+                                        <div className="space-y-2 pb-4">
+                                            <label className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-widest">Xác nhận mật khẩu</label>
+                                            <Input 
+                                                type={showPwd ? "text" : "password"} 
+                                                {...regPwd("confirmPassword", { 
+                                                    validate: (val) => val === newPassword || "Không trùng khớp"
+                                                })} 
+                                                className="h-12 rounded-xl bg-muted border-none px-5 font-semibold"
+                                            />
+                                            {pwdErrors.confirmPassword && <p className="text-[10px] text-destructive font-bold ml-1">{pwdErrors.confirmPassword.message as string}</p>}
+                                        </div>
+
+                                        <div className="pt-6 border-t border-border mt-auto flex justify-end">
+                                            <Button type="submit" disabled={changingPwd} className="h-12 px-10 rounded-xl bg-destructive text-destructive-foreground shadow-sm hover:opacity-90 transition-bounce font-bold uppercase tracking-widest text-[10px]">
+                                                {changingPwd ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck size={16} className="mr-2" />}
+                                                Đổi mật khẩu
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </Card>
+                            </TabsContent>
+                        </div>
+                    </div>
+                </Tabs>
+            </div>
+        </div>
     );
-    --gradient-chat: linear-gradient(
-      135deg,
-      hsl(187, 68%, 71%),
-      hsl(180, 50%, 85%)
-    );
-    --gradient-accent: linear-gradient(
-      90deg,
-      hsl(49, 78%, 69%), /* #EDD772 */
-      hsl(60, 80%, 75%)
-    );
-
-    --gradient-glass: linear-gradient(
-      135deg,
-      hsl(187, 50%, 98%) 0%,
-      hsl(185, 50%, 96%) 100%
-    );
-
-    --gradient-blue: radial-gradient(
-      125% 125% at 50% 10%,
-      hsla(0, 0%, 100%, 1) 40%,
-      hsla(187, 64%, 61%, 1) 100%
-    );
-
-    --gradient-red: radial-gradient(
-      125% 125% at 50% 10%,
-      hsla(0, 0%, 100%, 1) 40%,
-      rgb(225, 83, 83) 100%
-    );
-
-    --gradient-yello: radial-gradient(
-      125% 125% at 50% 10%,
-      hsla(0, 0%, 100%, 1) 40%,
-      hsla(49, 78%, 64%, 1) 100%
-    );
-
-    /* Shadows - Đổi tone tím sang tone Cyan */
-    --shadow-soft: 0 8px 32px -8px hsl(187 68% 71% / 0.15);
-    --shadow-glow: 0 0 40px hsl(187 68% 71% / 0.3);
-    --shadow-bubble: 0 4px 20px -4px hsl(187 68% 71% / 0.2);
-
-    /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 215.3 25% 26.7%;
-    --sidebar-primary: 187 68% 71%;
-    --sidebar-primary-foreground: 217.2 32.6% 15%;
-    --sidebar-accent: 185 76% 95%;
-    --sidebar-accent-foreground: 217.2 32.6% 15%;
-    --sidebar-border: 187 20% 91%;
-    --sidebar-ring: 187 68% 71%;
-
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-    /* Light Mode Status */
-    --success: 142 76% 36%;
-    --success-foreground: 355.7 100% 97.3%;
-    --danger: 0 84.2% 60.2%;
-    --danger-foreground: 0 0% 98%;
-  }
-
-  .dark {
-    /* Dark mode */
-    --background: 215 28% 13%;
-    --foreground: 214.3 31.8% 91.4%;
-
-    --card: 215 28% 15%;
-    --card-foreground: 214.3 31.8% 91.4%;
-
-    --popover: 215 28% 15%;
-    --popover-foreground: 250 100% 95%;
-
-    /* Primary Dark Mode - Vẫn giữ #82DAE6 vì nó sáng đẹp trên nền tối */
-    --primary: 187 68% 71%;
-    --primary-foreground: 215 28% 10%; /* Chữ tối trên nền neon */
-    --primary-glow: 187 68% 80%;
-
-    /* Secondary */
-    --secondary: 185 76% 79%;
-    --secondary-foreground: 215 28% 10%;
-
-    --muted: 215 28% 20%;
-    --muted-foreground: 240 15% 70%;
-
-    /* Accent */
-    --accent: 49 78% 69%;
-    --accent-foreground: 215 28% 10%;
-
-    /* Chat bubbles in dark mode */
-    --chat-bubble-sent: 187 68% 65%;
-    --chat-bubble-sent-foreground: 215 28% 10%;
-    --chat-bubble-received: 215 28% 18%;
-    --chat-bubble-received-foreground: 250 100% 90%;
-
-    /* Status colors */
-    --online: 140 100% 60%;
-    --away: 49 78% 69%;
-    --offline: 0 0% 50%;
-
-    --destructive: 0 80% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 215 28% 25%;
-    --input: 215 28% 20%;
-    --ring: 187 68% 71%;
-
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(
-      135deg,
-      hsl(187, 68%, 65%),
-      hsl(185, 76%, 70%)
-    );
-    --gradient-chat: linear-gradient(
-      135deg,
-      hsl(187, 68%, 60%),
-      hsl(185, 76%, 65%)
-    );
-    --gradient-accent: linear-gradient(
-      90deg,
-      hsl(49, 78%, 69%),
-      hsl(55, 90%, 60%)
-    );
-    --gradient-glass: linear-gradient(
-      45deg,
-      hsl(215, 28%, 15%) 0%,
-      hsl(215, 28%, 20%) 100%
-    );
-
-    --gradient-purple: radial-gradient(
-      125% 125% at 50% 10%,
-      hsla(0, 0%, 0%, 1) 40%,
-      hsla(187, 68%, 71%, 0.2) 100% /* Đổi tím sang xanh */
-    );
-
-    /* Dark shadows */
-    --shadow-soft: 0 8px 32px -8px hsl(187 68% 71% / 0.25);
-    --shadow-glow: 0 0 40px hsl(187 68% 71% / 0.4);
-    --shadow-bubble: 0 4px 20px -4px hsl(187 68% 71% / 0.2);
-
-    --sidebar-background: 215 28% 13%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 187 68% 71%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 28% 18%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 215 28% 20%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    --success: 140 100% 60%;
-    --success-foreground: 0 0% 0%;
-    --danger: 0 90% 65%;
-    --danger-foreground: 0 0% 0%;
-  }
-
-  body {
-    /* Đã sửa lỗi: Dùng biến màu hệ thống thay vì text-slate-800 */
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-}
-
-/* Chat App Utility Classes */
-@layer components {
-  /* Đổi hiệu ứng kính từ tím/hồng sang xanh cyan/vàng */
-  .glass {
-    @apply bg-gradient-to-br from-cyan-200/10 to-yellow-100/5 border-cyan-300/30;
-  }
-
-  .dark .glass {
-    @apply backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20;
-  }
-
-  .glass-strong {
-    @apply backdrop-blur-2xl bg-gradient-to-br from-card/90 to-card/60 border border-border/70;
-  }
-
-  /* Chat bubble variants */
-  .chat-bubble-sent {
-    @apply bg-primary/80! text-[hsl(var(--chat-bubble-sent-foreground))]! shadow-[var(--shadow-bubble)];
-  }
-
-  .chat-bubble-received {
-    @apply bg-[hsl(var(--chat-bubble-received))] text-[hsl(var(--chat-bubble-received-foreground))] border border-border/50;
-  }
-
-  /* Status indicators */
-  .status-online {
-    @apply bg-[hsl(var(--online))] shadow-[0_0_8px_hsl(var(--online)/0.5)];
-  }
-
-  .status-offline {
-    @apply bg-[hsl(var(--offline))];
-  }
-
-  /* Gradient backgrounds */
-  .bg-gradient-primary {
-    background: var(--gradient-primary);
-  }
-
-  .bg-gradient-chat {
-    background: var(--gradient-chat);
-  }
-
-  .bg-gradient-accent {
-    background: var(--gradient-accent);
-  }
-
-  .bg-gradient-glass {
-    background: var(--gradient-glass);
-  }
-
-  .bg-gradient-purple {
-    background: var(--gradient-purple);
-  }
-
-  .bg-gradient-blue {
-    background: var(--gradient-blue);
-  }
-
-  .bg-gradient-red {
-    background: var(--gradient-red);
-  }
-
-  .bg-gradient-yello {
-    background: var(--gradient-yello);
-  }
-
-  /* Shadows */
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
-  }
-
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .shadow-bubble {
-    box-shadow: var(--shadow-bubble);
-  }
-
-  /* Animations */
-  .transition-bounce {
-    transition: var(--transition-bounce);
-  }
-
-  .transition-smooth {
-    transition: var(--transition-smooth);
-  }
-
-  /* Pulse ring for unread messages */
-  .pulse-ring {
-    @apply relative;
-  }
-
-  .pulse-ring::before {
-    content: "";
-    @apply absolute inset-0 rounded-full bg-primary/30 animate-ping duration-[2000ms];
-  }
-
-  /* Message bounce in animation */
-  .message-bounce {
-    animation: messageSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-  }
-
-  .border-danger {
-    @apply border border-[hsl(var(--danger))];
-  }
-
-  .border-success {
-    @apply border border-[hsl(var(--success))];
-  }
-
-  @keyframes messageSlideIn {
-    0% {
-      opacity: 0;
-      transform: translateY(20px) scale(0.95);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-}
-
-:root {
-  --sidebar: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-}
-
-.dark {
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-}
-
-@theme inline {
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }

@@ -133,7 +133,7 @@ export function Header() {
                                         </div>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
                                         <UserCircle className="mr-2 h-4 w-4" />
                                         <span>Trang cá nhân</span>
                                     </DropdownMenuItem>

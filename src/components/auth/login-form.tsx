@@ -64,7 +64,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
     } catch (error) {
       const err = error as AxiosError<{ code: number, message: string }>;
-
       if (err.response?.data?.code === 1003) {
         notiModal.confirm(err.response.data?.message, "Vui lòng tiếp tục để thực hiện xác thực OTP", () => handleSendOTP(email))
       } else {
