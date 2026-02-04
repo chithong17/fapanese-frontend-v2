@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Camera, Lock, User, Mail, MapPin, Briefcase, CalendarDays, X, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { ChangePasswordPayload, UpdateProfilePayload } from "@/types/user";
+import type { ChangePasswordPayload, UpdateProfilePayload, UserProfile } from "@/types/user";
 import type { AxiosError } from "axios";
 import { STORAGE_FOLDERS, DEFAULT_IMAGES } from "@/types/fileStorage";
 
@@ -28,7 +28,7 @@ export default function ProfilePage() {
     const [uploadingAvt, setUploadingAvt] = useState(false); // Loading riêng cho avatar
 
     // Form Thông tin
-    const profileForm = useForm<UpdateProfilePayload>({
+    const profileForm = useForm<UserProfile>({
         defaultValues: {
             firstName: loginUser?.firstName || "",
             lastName: loginUser?.lastName || "",
@@ -37,6 +37,7 @@ export default function ProfilePage() {
             expertise: loginUser?.expertise || "",
             bio: loginUser?.bio || "",
             avtUrl: loginUser?.avtUrl || "",
+            role: loginUser?.role || "", // QUAN TRỌNG: Phải có dòng này để watch hoạt động
         }
     });
     // Form Mật khẩu
