@@ -25,51 +25,50 @@ const signInSchema = z.object({
 type SignInFormValues = z.infer<typeof signInSchema>;
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const {login, sendOTP, loginUser} = useAuthStore();  
+  const { login, sendOTP } = useAuthStore();
   const navigate = useNavigate();
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const notiModal = useModal();
 
-  const { register, handleSubmit, formState: { isSubmitting }, } = useForm<SignInFormValues>({ 
-    resolver: zodResolver(signInSchema), 
+  const { register, handleSubmit, formState: { isSubmitting }, } = useForm<SignInFormValues>({
+    resolver: zodResolver(signInSchema),
   });
 
 
-  const handleSendOTP = async(email: string) => {
-      try {
-        await sendOTP(email)
-        toast.success("Đã gửi email đến địa chỉ: " + email)
-        localStorage.setItem("otp_email", email);
-        navigate("/verify-otp")
-      } catch (err) {
-        const error = err as AxiosError<{ message: string }>;
-        notiModal.error("Gửi OTP thất bại", error.response?.data?.message + ". Vui lòng thử lại")
-      }
+  const handleSendOTP = async (email: string) => {
+    try {
+      await sendOTP(email)
+      toast.success("Đã gửi email đến địa chỉ: " + email)
+      localStorage.setItem("otp_email", email);
+      navigate("/verify-otp")
+    } catch (err) {
+      const error = err as AxiosError<{ message: string }>;
+      notiModal.error("Gửi OTP thất bại", error.response?.data?.message + ". Vui lòng thử lại")
+    }
   }
 
   const onSubmit = async (data: SignInFormValues) => {
-    const {email, password} = data;
-    
+    const { email, password } = data;
+
     try {
       await login(email, password);
 
       toast.success("Đăng nhập thành công");
-      
-      if(loginUser?.role.includes('ADMIN'))
+
+      const updatedUser = useAuthStore.getState().loginUser;
+
+      if (updatedUser?.role.includes('ADMIN'))
         navigate("/admin")
-      else if(loginUser?.role.includes('STUDENT'))
+      else if (updatedUser?.role.includes('STUDENT'))
         navigate("/")
 
     } catch (error) {
-      const err = error as AxiosError<{code: number, message: string }>;
-
-      if(err.response?.data?.code === 1003){
+      const err = error as AxiosError<{ code: number, message: string }>;
+      if (err.response?.data?.code === 1003) {
         notiModal.confirm(err.response.data?.message, "Vui lòng tiếp tục để thực hiện xác thực OTP", () => handleSendOTP(email))
-      }else{
+      } else {
         toast.error(err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại sau")
       }
-
-      
     }
 
   };
@@ -146,7 +145,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 className="w-full"
                 disabled={isSubmitting}
               >
-                {isSubmitting && <div style={{ transform: 'scale(0.4)', display: 'inline-block' }}><OrbitProgress color="#ffffff" size="small" dense/></div>}
+                {isSubmitting && <div style={{ transform: 'scale(0.4)', display: 'inline-block' }}><OrbitProgress color="#ffffff" size="small" dense /></div>}
                 {!isSubmitting && "Đăng nhập"}
               </Button>
 

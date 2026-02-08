@@ -1,11 +1,14 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export function SiteHeader() {
   const location = useLocation();
   const pathname = location.pathname;
+  const { logout } = useAuthStore()
+  const navigate = useNavigate();
 
   const getPageTitle = (path: string) => {
     if (path.includes("/admin/dashboard")) return "Dashboard";
@@ -21,6 +24,15 @@ export function SiteHeader() {
 
   const title = getPageTitle(pathname);
 
+  const handleLogout = async () => {
+    navigate("/login", { replace: true });
+    // await logout();
+
+    setTimeout(() => {
+      logout();
+    }, 100);
+  };
+
   return (
     <header className="flex h-[var(--header-height)] shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-[--header-height]">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -35,9 +47,8 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           {/* Nút Github cũ của bạn (có thể xóa nếu không cần) */}
-          <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
+          <Button onClick={handleLogout} variant="ghost" asChild size="sm" className="hidden sm:flex">
             <a
-              href="#"
               target="_blank"
               rel="noopener noreferrer"
               className="dark:text-foreground"

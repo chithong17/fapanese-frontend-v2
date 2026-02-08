@@ -15,6 +15,7 @@ const ProtectedRoute = ({ allowedRoles = [] }: ProtectedRouteProps) => {
   const refresh = useAuthStore((state) => state.refresh);
   const fetchMe = useAuthStore((state) => state.fetchMe);
 
+
   const [starting, setStarting] = useState(true);
 
   useEffect(() => {
@@ -65,7 +66,7 @@ const ProtectedRoute = ({ allowedRoles = [] }: ProtectedRouteProps) => {
     );
   }
 
-  if (!accessToken || !loginUser || !allowedRoles.includes(loginUser.role)) {
+  if (!accessToken || !loginUser || (allowedRoles.length != 0 && !allowedRoles.includes(loginUser.role)) ) {
     toast.error("Bạn không có quyền truy cập trang này!");
     return <Navigate to="/forbidden" replace />;
   }

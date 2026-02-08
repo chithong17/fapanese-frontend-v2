@@ -19,6 +19,7 @@ import LessonPage from './pages/course/LessonPage';
 import CourseDetailPage from './pages/course/CourseDetailPage';
 import OverviewContentPage from './pages/overview/OverviewContentPage';
 import SpeakingTestPage from './pages/speaking/SpeakingTestPage';
+import ProfilePage from './pages/users/ProfilePage';
 
 // ... các import khác giữ nguyên ...
 
@@ -41,6 +42,8 @@ function App() {
               <Route path="/speaking-test/:courseCode/:overviewId/:partId" element={<SpeakingTestPage />} />
 
               <Route element={<ProtectedRoute />}>
+                <Route path="/profile" element={<ProfilePage />} />
+
               </Route>
             </Route>
 
@@ -51,15 +54,15 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
 
             <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-              
+
               <Route path="/admin" element={<AdminLayout />}>
                 {/* Dùng 'index' để khi vào /admin tự động hiện dashboard */}
-                <Route index element={<DashboardPage />} /> 
-                
+                <Route index element={<DashboardPage />} />
+
                 <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="students" element={<StudentManagePage/>} />
-                <Route path="teachers" element={<LecturerManagePage/>} />
-                <Route path="courses" element={<CourseManagePage/>} />
+                <Route path="students" element={<StudentManagePage />} />
+                <Route path="teachers" element={<LecturerManagePage />} />
+                <Route path="courses" element={<CourseManagePage />} />
               </Route>
 
             </Route>
