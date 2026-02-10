@@ -182,7 +182,7 @@ const LessonPage = () => {
           {/* Simple Back Button */}
           <Link
             to={courseId ? `/course/${courseId}` : `/courses`}
-            className="inline-flex items-center text-gray-600 hover:text-cyan-600 transition-colors text-sm font-medium group mb-4"
+            className="inline-flex items-center text-gray-600 hover:text-primary transition-colors text-sm font-medium group mb-4"
           >
             <ArrowLeft className="mr-1.5 h-4 w-4 group-hover:translate-x-[-2px] transition-transform" />
             Quay lại khóa học
@@ -236,7 +236,7 @@ const LessonPage = () => {
         <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <SheetTrigger asChild>
             <Button
-              className="fixed bottom-20 right-4 lg:hidden z-40 rounded-full w-14 h-14 shadow-lg bg-cyan-600 hover:bg-cyan-700"
+              className="fixed bottom-20 right-4 lg:hidden z-40 rounded-full w-14 h-14 shadow-lg bg-primary hover:opacity-90"
               size="icon"
             >
               <BookOpen className="h-6 w-6" />
