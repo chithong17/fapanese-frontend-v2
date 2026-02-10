@@ -16,6 +16,7 @@ import { useNavigate } from "react-router";
 import { OrbitProgress } from "react-loading-indicators";
 import { useModal } from "../GlobalModal/ModalContext";
 import placeholderLogin from '@/assets/placeholderLogin.jpg'
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 const signInSchema = z.object({
   email: z.email(),
@@ -25,53 +26,77 @@ const signInSchema = z.object({
 type SignInFormValues = z.infer<typeof signInSchema>;
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const {login, sendOTP, loginUser} = useAuthStore();  
+  const { login, sendOTP, loginUser, loginGoogle } = useAuthStore();
   const navigate = useNavigate();
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const notiModal = useModal();
 
-  const { register, handleSubmit, formState: { isSubmitting }, } = useForm<SignInFormValues>({ 
-    resolver: zodResolver(signInSchema), 
+  const { register, handleSubmit, formState: { isSubmitting }, } = useForm<SignInFormValues>({
+    resolver: zodResolver(signInSchema),
   });
 
 
-  const handleSendOTP = async(email: string) => {
-      try {
-        await sendOTP(email)
-        toast.success("Đã gửi email đến địa chỉ: " + email)
-        localStorage.setItem("otp_email", email);
-        navigate("/verify-otp")
-      } catch (err) {
-        const error = err as AxiosError<{ message: string }>;
-        notiModal.error("Gửi OTP thất bại", error.response?.data?.message + ". Vui lòng thử lại")
-      }
+  const handleSendOTP = async (email: string) => {
+    try {
+      await sendOTP(email)
+      toast.success("Đã gửi email đến địa chỉ: " + email)
+      localStorage.setItem("otp_email", email);
+      navigate("/verify-otp")
+    } catch (err) {
+      const error = err as AxiosError<{ message: string }>;
+      notiModal.error("Gửi OTP thất bại", error.response?.data?.message + ". Vui lòng thử lại")
+    }
   }
 
   const onSubmit = async (data: SignInFormValues) => {
-    const {email, password} = data;
-    
+    const { email, password } = data;
+
     try {
       await login(email, password);
 
       toast.success("Đăng nhập thành công");
-      
-      if(loginUser?.role.includes('ADMIN'))
+
+      if (loginUser?.role.includes('ADMIN'))
         navigate("/admin")
-      else if(loginUser?.role.includes('STUDENT'))
+      else if (loginUser?.role.includes('STUDENT'))
         navigate("/")
 
     } catch (error) {
-      const err = error as AxiosError<{code: number, message: string }>;
+      const err = error as AxiosError<{ code: number, message: string }>;
 
-      if(err.response?.data?.code === 1003){
+      if (err.response?.data?.code === 1003) {
         notiModal.confirm(err.response.data?.message, "Vui lòng tiếp tục để thực hiện xác thực OTP", () => handleSendOTP(email))
-      }else{
+      } else {
         toast.error(err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại sau")
       }
 
-      
+
     }
 
+  };
+
+  const handleNavigate = () => {
+    // Lấy state mới nhất trực tiếp từ store để tránh delay update của React state
+    const currentUser = useAuthStore.getState().loginUser;
+    
+    if (currentUser?.role.includes('ADMIN')) navigate("/admin");
+    else if (currentUser?.role.includes('STUDENT')) navigate("/");
+    else navigate("/"); // Mặc định
+  };
+
+  // --- XỬ LÝ LOGIN GOOGLE ---
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    try {
+      if (credentialResponse.credential) {
+        // credential chính là ID Token mà backend cần verify
+        await loginGoogle(credentialResponse.credential);
+        toast.success("Đăng nhập Google thành công");
+        handleNavigate();
+      }
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || "Lỗi xác thực Google với Server");
+    }
   };
 
   return (
@@ -146,21 +171,24 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 className="w-full"
                 disabled={isSubmitting}
               >
-                {isSubmitting && <div style={{ transform: 'scale(0.4)', display: 'inline-block' }}><OrbitProgress color="#ffffff" size="small" dense/></div>}
+                {isSubmitting && <div style={{ transform: 'scale(0.4)', display: 'inline-block' }}><OrbitProgress color="#ffffff" size="small" dense /></div>}
                 {!isSubmitting && "Đăng nhập"}
               </Button>
 
               <FieldSeparator className="mt-6 mb-0">Hoặc tiếp tục với</FieldSeparator>
 
-              <Button variant="outline" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                    fill="currentColor"
-                  />
-                </svg>
-                Đăng nhập với Google
-              </Button>
+              <div className="w-full flex justify-center mt-2">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error("Đăng nhập Google thất bại (Client Error)")}
+                  useOneTap={true} // Hiện popup góc phải
+                  theme="outline"  // Có thể đổi thành "filled_blue" hoặc "filled_black"
+                  size="large"
+                  width="100%"     // Cố gắng full width container
+                  text="signin_with"
+                  shape="rectangular"
+                />
+              </div>
 
               <div className="text-center text-sm">
                 Chưa có tài khoản?{" "}
