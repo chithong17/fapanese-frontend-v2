@@ -27,6 +27,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const { login, sendOTP, loginUser, loginGoogle } = useAuthStore();
+  const { login, sendOTP } = useAuthStore();
   const navigate = useNavigate();
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const notiModal = useModal();
@@ -59,6 +60,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       if (loginUser?.role.includes('ADMIN'))
         navigate("/admin")
       else if (loginUser?.role.includes('STUDENT'))
+      const updatedUser = useAuthStore.getState().loginUser;
+
+      if (updatedUser?.role.includes('ADMIN'))
+        navigate("/admin")
+      else if (updatedUser?.role.includes('STUDENT'))
         navigate("/")
 
     } catch (error) {

@@ -4,7 +4,6 @@ import type { AuthState } from "@/types/store";
 import { toast } from "sonner";
 import { persist } from "zustand/middleware"
 
-
 export const useAuthStore = create<AuthState>()(
     persist((set, get) => ({
         accessToken: null,
@@ -161,7 +160,8 @@ export const useAuthStore = create<AuthState>()(
                 console.error(error);
                 toast.error("Lỗi xảy ra khi đăng xuất. Hãy thử lại")
             }
-        }
+        },
+
 
         
 
