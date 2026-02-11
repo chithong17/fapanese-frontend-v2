@@ -345,6 +345,12 @@
     @apply border border-[hsl(var(--success))];
   }
 
+  /* Flashcard flip animation utilities */
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
   @keyframes messageSlideIn {
     0% {
       opacity: 0;
