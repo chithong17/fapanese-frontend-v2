@@ -31,26 +31,6 @@ export interface AuthState {
     clearState: () => void;
     logout: () => Promise<void>;
     loginGoogle: (token: string) => Promise<void>;
-
-    signUp: (
-        email: string,
-        password: string,
-        firstName: string,
-        lastName: string,
-        role: string,
-        expertise: string,
-        bio: string,
-        dateOfBirth: string,
-        campus: string
-    ) => Promise<void>;
-    login: (email: string, password: string,) => Promise<void>;
-    sendOTP: (email: string,) => Promise<void>;
-    verifyOTP: (email: string, otp: string,) => Promise<void>;
-    fetchMe: () => Promise<void>;
-    refresh: () => Promise<void>;
-    clearState: () => void;
-    logout: () => Promise<void>;
-
 }
 
 

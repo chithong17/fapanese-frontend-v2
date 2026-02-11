@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import type { Question } from "@/types/question";
 import type { QuizResult } from "@/types/quiz";
@@ -16,8 +16,21 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  
+  // Ref for feedback element to enable auto-scroll
+  const feedbackRef = useRef<HTMLDivElement>(null);
 
   const currentQuestion = questions[currentQuestionIndex] || null;
+
+  // Auto-scroll to feedback when answer is given
+  useEffect(() => {
+    if (isAnswered && feedbackRef.current) {
+      feedbackRef.current.scrollIntoView({ 
+        behavior: "smooth", 
+        block: "nearest"
+      });
+    }
+  }, [isAnswered]);
 
   const handleAnswerSelect = (i: number) => {
     if (!currentQuestion || isAnswered) return;
@@ -237,8 +250,8 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
   }
 
   return (
-    <div className="w-full p-8 md:p-12 bg-white">
-      <div className="mb-8">
+    <div className="w-full p-6 md:p-8 bg-white">
+      <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
           <p className="text-lg font-bold text-[#00796B] tracking-wider">
             TIẾN ĐỘ BÀI TẬP
@@ -261,7 +274,7 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
           />
         </div>
 
-        <div className="flex justify-between mt-8">
+        <div className="flex justify-between mt-6">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -272,7 +285,7 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
               setIsAnswered(false);
               setIsCorrect(null);
             }}
-            className={`px-8 py-3 rounded-full font-semibold transition-all shadow-md ${
+            className={`px-8 py-2 rounded-full font-semibold transition-all shadow-md ${
               currentQuestionIndex === 0
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-[#B2EBF2] hover:bg-[#80DEEA] text-gray-800"
@@ -291,7 +304,7 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
                 setIsAnswered(false);
                 setIsCorrect(null);
               }}
-              className="px-8 py-3 rounded-full font-semibold bg-primary hover:opacity-90 text-white shadow-lg"
+              className="px-8 py-2 rounded-full font-semibold bg-primary hover:opacity-90 text-white shadow-lg"
             >
               Câu tiếp theo ▶
             </motion.button>
@@ -303,7 +316,7 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
               }}
               whileTap={{ scale: 0.95 }}
               onClick={handleSubmitQuiz}
-              className="px-8 py-3 rounded-full font-bold bg-gradient-primary text-white text-lg shadow-xl"
+              className="px-8 py-2 rounded-full font-bold bg-gradient-primary text-white text-lg shadow-xl"
             >
               HOÀN THÀNH 🚀
             </motion.button>
@@ -312,10 +325,10 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
       </div>
 
       {currentQuestion && (
-        <div className="text-center mt-10">
-          <div className="flex flex-col mb-4 p-2 border-b border-gray-200">
+        <div className="text-center mt-6">
+          <div className="flex flex-col mb-3 p-2 border-b border-gray-200">
             <div className="flex justify-between items-end mb-2">
-              <h3 className="text-4xl font-extrabold text-gray-900 leading-none">
+              <h3 className="text-3xl font-extrabold text-gray-900 leading-none">
                 Câu {currentQuestionIndex + 1}
               </h3>
 
@@ -333,12 +346,12 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
             </span>
           </div>
 
-          <p className="text-2xl font-bold text-gray-800 mb-10 p-4 bg-gray-50 rounded-xl shadow-inner">
+          <p className="text-xl font-bold text-gray-800 mb-6 p-3 bg-gray-50 rounded-xl shadow-inner">
             {currentQuestion.content}
           </p>
 
           {currentQuestion.questionType === "MULTIPLE_CHOICE" && (
-            <div className="grid grid-cols-2 gap-6 mb-12">
+            <div className="grid grid-cols-2 gap-4 mb-6">
               {getOptions().map((opt, i) => (
                 <motion.button
                   key={i}
@@ -358,7 +371,7 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
           )}
 
           {currentQuestion.questionType === "FILL" && (
-            <div className="mt-6 mb-10">
+            <div className="mt-4 mb-6">
               <input
                 key={currentQuestion.id}
                 type="text"
@@ -400,7 +413,7 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
                     e.currentTarget.blur();
                   }
                 }}
-                className={`w-full border-4 rounded-xl px-6 py-4 text-gray-800 text-lg shadow-lg transition-all ${
+                className={`w-full border-4 rounded-xl px-6 py-3 text-gray-800 text-lg shadow-lg transition-all ${
                   isAnswered
                     ? "border-gray-300 bg-gray-100 cursor-default"
                     : "border-gray-200 focus:border-[#00BCD4] focus:ring-4 focus:ring-[#B2EBF2] outline-none"
@@ -410,7 +423,7 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
           )}
 
           {currentQuestion.questionType === "TRUE_FALSE" && (
-            <div className="flex gap-6 mt-6 mb-10">
+            <div className="flex gap-4 mt-4 mb-6">
               {["True", "False"].map((val, i) => (
                 <motion.button
                   key={i}
@@ -418,7 +431,7 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
                   whileTap={{ scale: isAnswered ? 1.0 : 0.97 }}
                   disabled={isAnswered}
                   onClick={() => handleAnswerSelect(i)}
-                  className={`flex-1 py-5 rounded-full text-center border-2 font-bold transition-all shadow-lg ${
+                  className={`flex-1 py-4 rounded-full text-center border-2 font-bold transition-all shadow-lg ${
                     isAnswered
                       ? val.toLowerCase() ===
                         currentQuestion.correctAnswer?.toLowerCase()
@@ -439,10 +452,11 @@ const QuestionExercise = ({ questions, loading = false, onSubmit }: QuestionExer
 
           {isAnswered && (
             <motion.div
+              ref={feedbackRef}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, type: "tween" }}
-              className={`mt-5 p-5 rounded-2xl text-center font-bold text-xl shadow-2xl transition-all duration-500 
+              className={`mt-4 p-4 rounded-2xl text-center font-bold text-xl shadow-2xl transition-all duration-500 
             ${
               isCorrect
                 ? "bg-green-50 text-green-700 shadow-green-300/50"

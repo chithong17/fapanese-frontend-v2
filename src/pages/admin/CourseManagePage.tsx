@@ -106,8 +106,7 @@ export default function CourseManagePage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-
-
+        </div>
       </AdminToolbar>
 
       {/* Hidden file input */}
