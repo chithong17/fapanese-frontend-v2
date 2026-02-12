@@ -14,13 +14,7 @@ const api = axios.create({
       : "https://fapanese-web.onrender.com/fapanese/api",
   withCredentials: true,
 });
-;
-<<<<<<< HEAD
-=======
 
-
-
->>>>>>> e5117b173b41908e5b9c8cce505b3cad9dd08536
 
 //gắn access token vào req header (phải có requiresAuth: true, khi gửi req)
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
