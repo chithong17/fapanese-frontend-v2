@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface QuestionViewerProps {
@@ -25,19 +25,49 @@ export function QuestionViewer({
   isSuggestion = false,
 }: QuestionViewerProps) {
   const [showAnswer, setShowAnswer] = useState(!isSuggestion);
+  const [showQuestionRomaji, setShowQuestionRomaji] = useState(false);
+  const [showQuestionMeaning, setShowQuestionMeaning] = useState(false);
 
   return (
     <div className="p-3 sm:p-5 border border-gray-200 rounded-lg bg-white shadow-sm">
       {/* Question */}
       <div className="mb-4">
+        {/* Toggle Buttons for Question */}
+        {(romaji || meaning) && (
+          <div className="flex gap-2 mb-3">
+            {romaji && (
+              <Button
+                variant={showQuestionRomaji ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowQuestionRomaji(!showQuestionRomaji)}
+                className="gap-2 text-xs sm:text-sm"
+              >
+                {showQuestionRomaji ? <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" /> : <Eye className="h-3 w-3 sm:h-4 sm:w-4" />}
+                {showQuestionRomaji ? "Ẩn Romaji" : "Hiện Romaji"}
+              </Button>
+            )}
+            {meaning && (
+              <Button
+                variant={showQuestionMeaning ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowQuestionMeaning(!showQuestionMeaning)}
+                className="gap-2 text-xs sm:text-sm"
+              >
+                {showQuestionMeaning ? <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" /> : <Eye className="h-3 w-3 sm:h-4 sm:w-4" />}
+                {showQuestionMeaning ? "Ẩn Nghĩa" : "Hiện Nghĩa"}
+              </Button>
+            )}
+          </div>
+        )}
+
         <p className="text-base sm:text-lg font-semibold text-gray-900 mb-2">{question}</p>
-        {romaji && (
+        {showQuestionRomaji && romaji && (
           <p className="text-sm text-gray-600 italic mb-1">
             <span className="font-medium">Romaji: </span>
             {romaji}
           </p>
         )}
-        {meaning && (
+        {showQuestionMeaning && meaning && (
           <p className="text-sm text-gray-700">
             <span className="font-medium">Nghĩa: </span>
             {meaning}
