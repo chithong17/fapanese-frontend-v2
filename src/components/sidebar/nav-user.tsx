@@ -39,6 +39,7 @@ export function NavUser({ user, }: { user: LoginUser | null }) {
     // await logout();
 
     setTimeout(() => {
+      navigate('/');
       logout();
     }, 100);
 

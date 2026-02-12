@@ -29,6 +29,7 @@ export function SiteHeader() {
     // await logout();
 
     setTimeout(() => {
+      navigate('/');
       logout();
     }, 100);
   };

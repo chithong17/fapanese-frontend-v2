@@ -46,6 +46,7 @@ export function Header() {
     };
 
     const handleLogout = () => {
+        navigate('/');
         logout();
     };
 
