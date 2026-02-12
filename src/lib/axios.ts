@@ -1,7 +1,6 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
-import { toast } from "sonner";
 
 
 // const api = axios.create({
@@ -71,7 +70,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().clearState();
-        toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại")
+        // toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại")
         return Promise.reject(refreshError);
       }
     }

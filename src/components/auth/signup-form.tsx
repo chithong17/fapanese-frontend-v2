@@ -262,7 +262,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
               {/* Button Đăng ký */}
               <Button type="submit" className="w-full h-9 mt-2 text-sm" disabled={isSubmitting}>
-                {isSubmitting && <div style={{ transform: 'scale(0.4)', display: 'inline-block' }}><OrbitProgress color="#ffffff" size="small" dense /></div>}
+                {isSubmitting && <div style={{ transform: 'scale(0.4)', display: 'inline-block' }}><OrbitProgress color="hsl(var(--primary))" size="small" dense /></div>}
                 {!isSubmitting && "Tạo tài khoản"}
               </Button>
 

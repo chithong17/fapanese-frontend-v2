@@ -36,14 +36,11 @@ export function NavUser({ user, }: { user: LoginUser | null }) {
 
   const handleLogout = async () => {
     navigate("/", { replace: true });
-    // await logout();
 
     setTimeout(() => {
       
       logout();
     }, 100);
-
-    // 2. Chuyển hướng
 
   };
 

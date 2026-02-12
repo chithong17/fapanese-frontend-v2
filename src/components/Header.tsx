@@ -161,7 +161,7 @@ export function Header() {
                             <Button onClick={handleLogin} className="md:flex gap-2">
                                 <LogIn className="h-4 w-4" />
                                 <span className="hidden md:inline">Đăng nhập</span>
-                                <span className="md:hidden">Login</span>
+                                <span className="md:hidden">Đăng nhập</span>
                             </Button>
                         )}
                     </div>
