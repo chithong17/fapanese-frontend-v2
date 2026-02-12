@@ -143,8 +143,6 @@ export const useAuthStore = create<AuthState>()(
                 return accessToken;
             } catch (error) {
                 console.error(error)
-                toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại")
-
                 get().clearState();
                 return Promise.reject(error);
             } finally {

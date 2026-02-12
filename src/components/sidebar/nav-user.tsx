@@ -35,11 +35,11 @@ export function NavUser({ user, }: { user: LoginUser | null }) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
     // await logout();
 
     setTimeout(() => {
-      navigate('/');
+      
       logout();
     }, 100);
 
