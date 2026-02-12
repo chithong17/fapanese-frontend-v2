@@ -30,7 +30,7 @@ export default function CourseList() {
     }
 
     return (
-        <section className="w-full bg-gray-100 py-30 px-6 break-all">
+        <section className="w-full bg-gray-100 py-10 md:py-20 lg:py-30 px-4 md:px-6 break-all">
             <div className="max-w-7xl mx-auto">
                 {/* 5. Loop qua danh sách khóa học */}
                 <div className="flex flex-col gap-10">

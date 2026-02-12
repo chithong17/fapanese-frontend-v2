@@ -168,7 +168,7 @@ export default function OverviewContentPage() {
         <img
           src={PART_BANNERS[currentPartType as string] || PART_BANNERS.SPEAKING}
           alt={`Banner ${currentPartTitle}`}
-          className={`rounded-2xl w-full max-h-64 object-cover shadow-lg transition-all duration-700 ease-out ${
+          className={`rounded-2xl w-full max-h-48 sm:max-h-64 object-cover shadow-lg transition-all duration-700 ease-out ${
             loadingBanner ? "opacity-0 scale-95" : "opacity-100 scale-100"
           }`}
           onLoad={() => setLoadingBanner(false)}
@@ -205,7 +205,7 @@ export default function OverviewContentPage() {
       {/* Header - Only show in list view */}
       {!selectedGroup && (
         <header className="bg-white shadow-lg sticky top-0 z-20 border-b-4 border-cyan-500">
-          <div className="max-w-8xl mx-auto px-6 lg:px-12 py-4 flex justify-between items-center">
+          <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-12 py-4 flex justify-between items-center">
             <Link
               to={courseId ? `/course/${courseId}` : `/courses`}
               className="flex items-center text-gray-700 hover:text-cyan-600 transition-colors text-lg font-medium group"
@@ -222,8 +222,8 @@ export default function OverviewContentPage() {
       )}
 
       {/* Main Layout */}
-      <div className="max-w-8xl mx-auto px-6 lg:px-12 py-10">
-        <div className="flex flex-col md:flex-row md:space-x-10">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-12 py-6 md:py-10">
+        <div className="flex flex-col md:flex-row md:space-x-10 gap-6 md:gap-0">
           {/* Sidebar */}
           <OverviewSidebar
             parts={parts}

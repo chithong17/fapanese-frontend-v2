@@ -138,7 +138,7 @@ const CourseDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-[#f8fdfe] to-[#e6f7f9] py-10 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-[#f8fdfe] to-[#e6f7f9] py-6 md:py-10 px-4 md:px-6">
       <div className="max-w-6xl mx-auto">
         {/* Simple Back Button */}
         <Link
@@ -198,7 +198,7 @@ const CourseDetailPage = () => {
               </p>
             </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-3 md:gap-4">
               {lessons.map((lesson, index) => (
                 <motion.div
                   key={lesson.id}
@@ -207,7 +207,7 @@ const CourseDetailPage = () => {
                   transition={{ delay: index * 0.1 }}
                   className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 group"
                 >
-                  <div className="flex items-center gap-6 p-6">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 p-4 md:p-6">
                     {/* Lesson Number */}
                     <div className="flex-shrink-0 w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
                       <span className="text-2xl font-bold text-white">
@@ -216,8 +216,8 @@ const CourseDetailPage = () => {
                     </div>
 
                     {/* Lesson Info */}
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-primary transition-colors">
+                    <div className="flex-1 text-center sm:text-left">
+                      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 group-hover:text-primary transition-colors">
                         {lesson.lessonTitle}
                       </h3>
                       {lesson.description && (
@@ -231,7 +231,7 @@ const CourseDetailPage = () => {
                     <Button
                       onClick={() => handleStartLesson(lesson)}
                       disabled={startingLesson === lesson.id}
-                      className="flex-shrink-0 h-auto rounded-2xl bg-gradient-primary px-6 py-3 text-white font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
+                      className="w-full sm:w-auto flex-shrink-0 h-auto rounded-2xl bg-gradient-primary px-6 py-3 text-white font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
                     >
                       {startingLesson === lesson.id ? (
                         <>
