@@ -26,8 +26,8 @@ const GrammarContent = ({ grammars, loading = false, lessonPartId }: GrammarCont
   }
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 space-y-6 md:space-y-10 bg-gray-50 min-h-screen">
-      <div className="max-w-4xl mx-auto">
+    <div className="p-3 md:p-8 lg:p-12 space-y-6 md:space-y-10 bg-gray-50 min-h-screen">
+      <div className="w-full md:max-w-5xl lg:max-w-6xl mx-auto">
         <h1
           className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 pb-3 mb-6 md:mb-10 
                      border-b-4 border-cyan-500 tracking-tight"
@@ -72,7 +72,7 @@ const GrammarContent = ({ grammars, loading = false, lessonPartId }: GrammarCont
                       Cấu trúc
                     </p>
                     <div className="bg-gray-50 rounded-lg px-4 py-3 border-l-4 border-cyan-500">
-                      <p className="font-mono text-base md:text-lg font-semibold text-cyan-700">
+                      <p className="font-mono text-sm md:text-base lg:text-lg font-semibold text-cyan-700">
                         {detail.structure}
                       </p>
                     </div>
@@ -94,7 +94,7 @@ const GrammarContent = ({ grammars, loading = false, lessonPartId }: GrammarCont
                       Ví dụ
                     </p>
                     <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl p-4 md:p-5 border border-cyan-100">
-                      <p className="whitespace-pre-line text-base md:text-lg font-medium text-gray-900 mb-3">
+                      <p className="whitespace-pre-line text-sm md:text-base lg:text-lg font-medium text-gray-900 mb-3">
                         {detail.exampleSentence}
                       </p>
                       <div className="border-t border-cyan-200 pt-3">

@@ -35,7 +35,7 @@ const FlashCard = ({ front, back, isFavorite = false, onToggleFavorite, onFlip }
         style={{ transformStyle: "preserve-3d" }}
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{
-          duration: 0.8,
+          duration: 0.4,
           ease: [0.4, 0, 0.2, 1],
         }}
       >

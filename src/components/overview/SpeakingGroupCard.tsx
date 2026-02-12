@@ -12,22 +12,22 @@ interface SpeakingGroupCardProps {
  */
 export function SpeakingGroupCard({ group }: SpeakingGroupCardProps) {
   return (
-    <div className="p-6 sm:p-10 bg-white rounded-2xl shadow-xl transition-all duration-300 transform hover:shadow-2xl">
-      <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 pb-4 border-b-2 border-cyan-100">
+    <div className="p-4 sm:p-8 lg:p-10 bg-white rounded-2xl shadow-xl transition-all duration-300 transform hover:shadow-2xl">
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-6 sm:mb-8 pb-3 sm:pb-4 border-b-2 border-cyan-100">
         {group.title}
       </h2>
 
       {group.description && (
-        <p className="text-gray-700 mb-10 text-lg italic border-l-4 border-cyan-300 pl-4 py-2 bg-cyan-50 rounded-lg">
+        <p className="text-gray-700 mb-6 sm:mb-10 text-base sm:text-lg italic border-l-4 border-cyan-300 pl-3 sm:pl-4 py-2 bg-cyan-50 rounded-lg">
           {group.description}
         </p>
       )}
 
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-12">
         {group.speakings.map((item, index) => (
           <div
             key={item.id}
-            className="p-6 rounded-xl bg-gray-50 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl hover:border-cyan-200"
+            className="p-4 sm:p-6 rounded-xl bg-gray-50 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl hover:border-cyan-200"
           >
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">
               Bài tập {index + 1}: {item.topic || "Nội dung luyện tập"}
@@ -75,7 +75,7 @@ export function SpeakingGroupCard({ group }: SpeakingGroupCardProps) {
                       answer={q.answer}
                       answerRomaji={q.answerRomaji}
                       answerMeaning={q.answerMeaning}
-                      isSuggestion={item.speakingType === "QUESTION"}
+                      isSuggestion={item.speakingType === "QUESTION" || item.speakingType === "PICTURE"}
                     />
                   ))}
                 </div>

@@ -323,7 +323,21 @@ const FlashcardPage = () => {
               initial={{ opacity: 0, x: direction > 0 ? 50 : -50, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: direction > 0 ? -50 : 50, scale: 0.95 }}
-              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.7}
+              onDragEnd={(_, info) => {
+                const swipeThreshold = 100;
+                if (info.offset.x > swipeThreshold) {
+                  // Swiped right -> go to previous
+                  goToPrev();
+                } else if (info.offset.x < -swipeThreshold) {
+                  // Swiped left -> go to next
+                  goToNext();
+                }
+              }}
+              whileDrag={{ cursor: "grabbing" }}
             >
               {currentCard && (
                 <FlashCard

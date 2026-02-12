@@ -27,10 +27,10 @@ export function QuestionViewer({
   const [showAnswer, setShowAnswer] = useState(!isSuggestion);
 
   return (
-    <div className="p-5 border border-gray-200 rounded-lg bg-white shadow-sm">
+    <div className="p-3 sm:p-5 border border-gray-200 rounded-lg bg-white shadow-sm">
       {/* Question */}
       <div className="mb-4">
-        <p className="text-lg font-semibold text-gray-900 mb-2">{question}</p>
+        <p className="text-base sm:text-lg font-semibold text-gray-900 mb-2">{question}</p>
         {romaji && (
           <p className="text-sm text-gray-600 italic mb-1">
             <span className="font-medium">Romaji: </span>
@@ -70,7 +70,7 @@ export function QuestionViewer({
           )}
 
           {showAnswer && (
-            <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
+            <div className="p-3 sm:p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
               <p className="text-base text-gray-900 font-medium mb-2">{answer}</p>
               {answerRomaji && (
                 <p className="text-sm text-gray-600 italic mb-1">

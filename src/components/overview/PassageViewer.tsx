@@ -48,9 +48,9 @@ export function PassageViewer({ passage, romaji, meaning }: PassageViewerProps) 
         </div>
       )}
 
-      <div className="p-6 bg-cyan-50/50 border-l-4 border-cyan-400 rounded-lg shadow-sm">
+      <div className="p-4 sm:p-6 bg-cyan-50/50 border-l-4 border-cyan-400 rounded-lg shadow-sm">
         {/* Main passage in Japanese */}
-        <p className="text-lg text-gray-900 mb-3 leading-relaxed font-medium">
+        <p className="text-base sm:text-lg text-gray-900 mb-3 leading-relaxed font-medium">
           {passage}
         </p>
 
