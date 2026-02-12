@@ -1,7 +1,6 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
-import { toast } from "sonner";
 
 // const api = axios.create({
 //   baseURL: import.meta.env.MODE === 'development' ? "http://localhost:8080/fapanese/api" : "/fapanese/api",
@@ -16,6 +15,12 @@ const api = axios.create({
   withCredentials: true,
 });
 ;
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> e5117b173b41908e5b9c8cce505b3cad9dd08536
 
 //gắn access token vào req header (phải có requiresAuth: true, khi gửi req)
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
@@ -67,7 +72,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().clearState();
-        toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại")
+        // toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại")
         return Promise.reject(refreshError);
       }
     }

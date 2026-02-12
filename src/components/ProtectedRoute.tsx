@@ -61,7 +61,7 @@ const ProtectedRoute = ({ allowedRoles = [] }: ProtectedRouteProps) => {
   if (starting) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
-        <OrbitProgress dense color="#3b82f6" size="medium" text="" textColor="" />
+        <OrbitProgress dense color="hsl(var(--primary))" size="medium" text="" textColor="" />
       </div>
     );
   }

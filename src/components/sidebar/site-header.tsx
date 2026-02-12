@@ -25,10 +25,11 @@ export function SiteHeader() {
   const title = getPageTitle(pathname);
 
   const handleLogout = async () => {
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
     // await logout();
 
     setTimeout(() => {
+      navigate('/');
       logout();
     }, 100);
   };

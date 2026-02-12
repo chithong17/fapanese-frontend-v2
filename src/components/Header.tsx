@@ -17,13 +17,13 @@ const navItems = [
 export function Header() {
     // 1. XÓA useState activeNav cũ
     // const [activeNav, setActiveNav] = useState('/'); 
-    
+
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
 
     const { loginUser, logout } = useAuthStore();
     const navigate = useNavigate();
-    const location = useLocation(); 
+    const location = useLocation();
 
     const isLoggedIn = !!loginUser;
 
@@ -31,7 +31,7 @@ export function Header() {
     // Logic: Tìm item nào có href khớp với đầu chuỗi của path hiện tại
     const currentPath = location.pathname;
     const foundItem = navItems.find(item => item.href !== '/' && currentPath.startsWith(item.href));
-    
+
     // Nếu tìm thấy thì activeNav là href đó, nếu không thì mặc định là '/'
     const activeNav = foundItem ? foundItem.href : '/';
 
@@ -45,8 +45,14 @@ export function Header() {
         navigate("/login");
     };
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        navigate("/", { replace: true });
+
+        setTimeout(() => {
+
+            logout();
+        }, 100);
+
     };
 
     const getUserName = () => {
@@ -80,7 +86,7 @@ export function Header() {
                 `}
             >
                 <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-                    
+
                     <Link to="/" className="flex items-center gap-2">
                         {/* Logic Logo/Title không đổi */}
                         <img
@@ -101,9 +107,8 @@ export function Header() {
                             <Link
                                 key={item.label}
                                 to={item.href}
-                                className={`text-md font-medium transition-colors hover:text-blue-500 ${
-                                    activeNav === item.href ? 'text-blue-400 font-bold' : 'text-gray-700'
-                                }`}
+                                className={`text-md font-medium transition-colors hover:text-blue-500 ${activeNav === item.href ? 'text-blue-400 font-bold' : 'text-gray-700'
+                                    }`}
                             >
                                 {item.label}
                             </Link>
@@ -156,7 +161,7 @@ export function Header() {
                             <Button onClick={handleLogin} className="md:flex gap-2">
                                 <LogIn className="h-4 w-4" />
                                 <span className="hidden md:inline">Đăng nhập</span>
-                                <span className="md:hidden">Login</span>
+                                <span className="md:hidden">Đăng nhập</span>
                             </Button>
                         )}
                     </div>

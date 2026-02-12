@@ -4,6 +4,7 @@ import type { AuthState } from "@/types/store";
 import { toast } from "sonner";
 import { persist } from "zustand/middleware"
 
+
 export const useAuthStore = create<AuthState>()(
     persist((set, get) => ({
         accessToken: null,
@@ -142,8 +143,6 @@ export const useAuthStore = create<AuthState>()(
                 return accessToken;
             } catch (error) {
                 console.error(error)
-                toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại")
-
                 get().clearState();
                 return Promise.reject(error);
             } finally {
@@ -153,6 +152,7 @@ export const useAuthStore = create<AuthState>()(
 
         logout: async () => {
             try {
+                
                 get().clearState();
                 await authService.logout();
                 toast.success("Đăng xuất thành công");

@@ -30,6 +30,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   const navigate = useNavigate();
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const notiModal = useModal();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const { register, handleSubmit, formState: { isSubmitting }, } = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -39,7 +40,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   const handleNavigate = () => {
     // Lấy state mới nhất trực tiếp từ store để tránh delay update của React state
     const currentUser = useAuthStore.getState().loginUser;
-    
+
     if (currentUser?.role.includes('ADMIN')) navigate("/admin");
     else if (currentUser?.role.includes('STUDENT')) navigate("/");
     else navigate("/"); // Mặc định
@@ -87,7 +88,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     try {
       if (credentialResponse.credential) {
-        // credential chính là ID Token mà backend cần verify
+        setIsGoogleLoading(true); // Bật loading
         await loginGoogle(credentialResponse.credential);
         toast.success("Đăng nhập Google thành công");
         handleNavigate();
@@ -95,6 +96,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       toast.error(err.response?.data?.message || "Lỗi xác thực Google với Server");
+    } finally {
+      setIsGoogleLoading(false); // Tắt loading dù thành công hay thất bại
     }
   };
 
@@ -177,13 +180,21 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               <FieldSeparator className="mt-6 mb-0">Hoặc tiếp tục với</FieldSeparator>
 
               <div className="w-full flex justify-center mt-2">
+                {isGoogleLoading && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/10 backdrop-blur-[2px] border border-white/20 transition-all">
+                    <div style={{ transform: 'scale(0.6)' }}>
+                      <OrbitProgress color="hsl(var(--primary))" size="large" dense />
+                    </div>
+                  </div>
+                )}
+
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={() => toast.error("Đăng nhập Google thất bại (Client Error)")}
-                  useOneTap={true} // Hiện popup góc phải
-                  theme="outline"  // Có thể đổi thành "filled_blue" hoặc "filled_black"
+                  useOneTap={true} 
+                  theme="outline"  
                   size="large"
-                  width="100%"     // Cố gắng full width container
+                  width="100%"    
                   text="signin_with"
                   shape="rectangular"
                 />
