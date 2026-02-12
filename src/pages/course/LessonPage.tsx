@@ -71,7 +71,6 @@ const LessonPage = () => {
   const { showFlashcardButton } = useFlashcardButton({
     activeTab,
     contentType,
-    vocabContentRef,
   });
 
   // Scroll to top on tab/content change

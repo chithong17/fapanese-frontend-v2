@@ -22,6 +22,7 @@ import OverviewContentPage from './pages/overview/OverviewContentPage';
 import SpeakingTestPage from './pages/speaking/SpeakingTestPage';
 import FavoritesPage from './pages/course/FavoritesPage';
 import ProfilePage from './pages/users/ProfilePage';
+import ScrollToTop from './components/ScrollToTop';
 
 // ... các import khác giữ nguyên ...
 
@@ -31,6 +32,7 @@ function App() {
       <Toaster richColors position="top-center" offset="70px" />
 
       <BrowserRouter>
+        <ScrollToTop />
         <ModalProvider>
 
           <Routes>
